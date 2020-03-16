@@ -19,6 +19,7 @@ RUN gem install bundler
 RUN bundle install
 RUN yarn install
 VOLUME /$PROJECT
+RUN bundle exec rails assets:precompile
  
 # puma.sockを配置するディレクトリを作成
 RUN mkdir -p tmp/sockets
