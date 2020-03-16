@@ -1,0 +1,40 @@
+version: '3'
+services:
+  db:
+    image: mysql:5.7
+    environment:
+      MYSQL_DATABASE: neptune_development
+      MYSQL_USER: root
+      MYSQL_ALLOW_EMPTY_PASSWORD: "yes"
+    tty: true
+    ports:
+      - 3306:3306
+    command: mysqld --character-set-server=utf8mb4 --explicit_defaults_for_timestamp=true
+  rails:
+    build:
+      context: .
+    volumes:
+      - .:/neptune
+      - /neptune/node_modules
+      - public-data:/neptune/public
+      - tmp-data:/neptune/tmp
+      - log-data:/neptune/log
+    environment:
+      RAILS_ENV: development
+    depends_on:
+      - db
+    command: sh scripts/launch.sh
+  nginx:
+    build: 
+      context: ./nginx
+    ports:
+      - 80:80
+    depends_on:
+      - rails
+    volumes:
+      - public-data:/neptume/public
+      - tmp-data:/neptune/tmp
+volumes:
+  public-data:
+  tmp-data:
+  log-data:
