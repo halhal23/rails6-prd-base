@@ -13,14 +13,20 @@ RUN apk add --no-cache file
 RUN apk add yarn --no-cache
 RUN apk add tzdata 
  
+# yarnインストールの実行(先にlockファイルをコピーしてバージョンを固定)
+COPY package.json yarn.lock ./
+RUN yarn install
+
 COPY . ./
 
 RUN gem install bundler
 RUN bundle install
-RUN yarn install
-VOLUME /$PROJECT
-RUN bundle exec rails assets:precompile
+
+# フロント用のライブラリのインストールと静的ファイルの作成
+RUN bundle exec rails yarn:install
+RUN bundle exec rails webpacker:compile
  
+VOLUME /$PROJECT
 # puma.sockを配置するディレクトリを作成
 RUN mkdir -p tmp/sockets
  
